@@ -33,16 +33,14 @@ const getBookByISBN = async(req, res) => {
 function compactAuthors(responseBooks, responseAuthors){
     let books = responseBooks.rows;
     let authors = responseAuthors.rows;
-    let aux = {};
     for(e in books){
-        let count = 0;
+        let aux = [];
         books[e]["authors"] = aux;
         for(i in authors){
             if(authors[i].ISBN == books[e].ISBN){
-                aux["author"+count++] = authors[i].name;
+                aux.push(authors[i].name);
             }
         }
-        console.log(aux);
     }
 
 }
