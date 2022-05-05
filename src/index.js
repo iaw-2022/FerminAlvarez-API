@@ -6,7 +6,10 @@ const app = express();
 app.use(express.json());
 
 // Routes
+app.use(require('./routes/authors.router'));
 app.use(require('./routes/books.router'));
+app.use(require('./routes/bookshops.router'));
+app.use(require('./routes/categories.router'));
 
 app.listen(3000);
 console.log('Server on port', 3000);
