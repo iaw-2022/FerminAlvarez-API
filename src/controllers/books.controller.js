@@ -17,22 +17,6 @@ const getBooks = async(req, res ) => {
         res.status(404).json({error: 'Not Found'});
 }
 
-const getBookByISBN = async(req, res) => {
-    if(!isNaN(req.params.ISBN)){
-        
-        getBookWithISBN(req.params.ISBN).then((responseBooks) => { 
-            if(responseBooks.rows.length > 0){
-                res.status(200).json(responseBooks.rows[0]);
-            }else{
-                res.status(404).json({error: 'Not Found'});
-            }
-        });
-        
-    }else{
-        res.status(400).json({error: 'Invalid parameter'});
-    }    
-}
-
 async function getBookWithISBN(ISBN){
     let responseBooks = 
         await database.query('SELECT "ISBN", books.name, publisher, total_pages, published_at, image_link, categories.name as category FROM (books JOIN categories ON books.category = categories.id) WHERE books."ISBN" = $1', [ISBN]);
@@ -89,7 +73,7 @@ const getBookByCategory= async(req, res) => {
     }    
 }
 
-const getExternalISBNBook = async(req, res) => {
+const getBookByISBN = async(req, res) => {
     if(!isNaN(req.params.ISBN)){
         const responseBook =  await database.query('SELECT books."ISBN" FROM books WHERE books."ISBN" = $1 LIMIT 1', [req.params.ISBN]);
 
@@ -270,6 +254,5 @@ module.exports = {
     getBooks,
     getBookByISBN, 
     getBookByAuthorName,
-    getBookByCategory,
-    getExternalISBNBook
+    getBookByCategory
 }
