@@ -93,7 +93,7 @@ const getBookByISBN = async(req, res) => {
                     )
                     .catch(
                         err =>{
-                            console.log("Error al crear libro" + err);
+                            console.log("ERROR: Something went wrong saving the book");
                         }
             )}).catch(
                 () => {
@@ -122,7 +122,7 @@ async function createBook(jsonBook) {
             }
     )}).catch(
         err => {
-            console.log(err + "error al crear la categoría");
+            console.log(err + "ERROR: Something went wrong adding the category");
         }
     );
 }
@@ -173,7 +173,7 @@ async function assignAuthors(authorsNames,ISBN){
             await database.query('INSERT INTO written_by ("Author", "ISBN") VALUES ($1,$2)', [authorsIDS[i],ISBN]);
         }
     } catch(err){
-        console.log(err + "Error al asignar un autor");
+        console.log(err + "ERROR: Something went wrong adding authors");
     } 
 }
 
