@@ -34,7 +34,7 @@ const getBookByAuthorId = async(req, res) => {
         await database.query('SELECT books."ISBN", books.name, publisher, total_pages, published_at, image_link, categories.name as category FROM (books JOIN categories ON books.category = categories.id JOIN written_by ON written_by."ISBN"=books."ISBN" JOIN authors ON authors.id = written_by."Author") WHERE authors.id = ($1)', [req.params.Id]);
 
         const responseAuthors = 
-        await database.query('SELECT written_by."ISBN", authors.name FROM  (authors JOIN written_by ON written_by."Author" = authors."id" JOIN books On written_by."ISBN" = books."ISBN") WHERE authors.id = ($1)', [req.params.Id]);
+        await database.query('SELECT written_by."ISBN", authors.name, authors.id  FROM  (authors JOIN written_by ON written_by."Author" = authors."id" JOIN books On written_by."ISBN" = books."ISBN") WHERE authors.id = ($1)', [req.params.Id]);
 
         utils.compactAuthors(responseBooks, responseAuthors)
 
