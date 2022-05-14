@@ -13,8 +13,9 @@ const getSuscriberById = async(req, res) => {
 }
 
 const applySuscription = async(req, res) => {
+    let actualDate = new Date(Date.now()).toLocaleString('es-AR');
     const {id, ISBN} = req.body
-    await database.query('INSERT INTO subscribed VALUES ($1,$2) returning id_user', [id, ISBN], function(err, result, fields) {
+    await database.query('INSERT INTO subscribed VALUES ($1,$2,$3,$4) returning id_user', [id, ISBN, actualDate, actualDate], function(err, result, fields) {
         if (err) {
             res.status(400).json({error: 'ERROR: Something went wrong'});
           }else{

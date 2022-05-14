@@ -2,6 +2,7 @@ const database = require('../database');
 const axios = require('axios');
 const { json } = require('express/lib/response');
 const utils = require('../utils');
+const scrapping_settings = require('../scrapping-settings');
 
 const getBooks = async(req, res ) => {
     const responseBooks = 
@@ -56,8 +57,6 @@ const getBookByCategory= async(req, res) => {
         req.params.Category = req.params.Category.replace(/[^0-9a-zA-Z.]+/g, " ");
         const responseBooks = 
         await database.query('SELECT books."ISBN", books.name, publisher, total_pages, published_at, image_link, categories.name as category FROM (books JOIN categories ON books.category = categories.id JOIN written_by ON written_by."ISBN"=books."ISBN" JOIN authors ON authors.id = written_by."Author") WHERE to_ascii(upper(categories.name)) LIKE to_ascii(upper($1))', [`%${req.params.Category}%`]);
-
-        console.log(req.params.Category);
 
         const responseAuthors = 
         await database.query('SELECT written_by."ISBN", authors.name, authors.id  FROM  (authors JOIN written_by ON written_by."Author" = authors."id" JOIN books On written_by."ISBN" = books."ISBN" JOIN categories ON categories.id = books.category) WHERE to_ascii(upper(categories.name)) LIKE to_ascii(upper($1)) ', [`%${req.params.Category}%`]);
@@ -151,7 +150,7 @@ async function insertBook(jsonBook, categoryID,actualDate){
         }
     ).catch(
         (err) => {
-            throw (err +"error: Something went wrong saving book on database");
+            throw ("error: Something went wrong saving book on database");
         }
     );
 }
@@ -192,20 +191,51 @@ function callGoogleAPI(ISBN){
     return dataPromise;
 }
 
+const getBookPrice= async(req, res) => {
+    if(!isNaN(req.params.ISBN)){
+        for( i in scrapping_settings.bookshopmapping.length){
+            await callScrappingAPI(req.params.ISBN, i)
+        }
+        const responseHas = await database.query('SELECT "ISBN", "Bookshop", name, price FROM has JOIN bookshops ON bookshops.id = "Bookshop" WHERE "ISBN" = ($1)', [req.params.ISBN]);
 
-function callScrappingAPI(ISBN){
-    let bookshops = ['libreriadonquijote','cuspide','buscalibre','tematika']
-    let prices = []
-    for(i in bookshops){
-        let uri = 'https://scrappinglibreriaapi.herokuapp.com/'+bookshops[i]+'/'+ISBN;
-
-        axios.get(uri)
-        .then((response) => {
-           console.log(response.data);
-           prices.push(response.data)
-        }).catch();
+        if(responseHas.rows.length > 0){
+            res.status(200).json(responseHas.rows);
+        }else{
+            res.status(404).json({error: 'Not Found'});
+        }
     }
-   
+}
+
+async function callScrappingAPI(ISBN, indexBookshop){
+    bookshop = scrapping_settings.bookshopmapping[indexBookshop]
+    let uri = 'https://scrappinglibreriaapi.herokuapp.com/'+bookshop.name+'/'+ISBN;
+    
+    axios.get(uri).then((response) => {
+        for(i in bookshop.id){
+            insertHas(ISBN, bookshop.id[i], response.data.Precio)
+        }
+    }).catch(() => {});
+}
+
+async function insertHas(ISBN, bookshopId, price){
+    const responseHas = await database.query('SELECT "ISBN", "Bookshop",updated_at FROM has WHERE "ISBN" = ($1) and "Bookshop" = ($2) LIMIT 1',[ISBN, bookshopId]);
+    
+    let actualDate = new Date(Date.now()).toLocaleString('es-AR');
+    
+    if(responseHas.rows.length == 0){
+        await database.query('INSERT INTO has ("ISBN","Bookshop",price, created_at, updated_at) VALUES ($1, $2, $3, $4,$5)', [ISBN, bookshopId, price, actualDate, actualDate]).catch();
+    } else{
+        let hasDateTime = createDate(responseHas.rows[0].updated_at).getTime()
+
+        let actualTime = new Date().getTime()
+
+        var hours = Math.abs(hasDateTime - actualTime) / 36e5;
+
+        if(hours > 8)
+            await database.query('UPDATE has SET price = ($3), updated_at = ($4) WHERE "ISBN" = ($1) and "Bookshop" = ($2)', [ISBN, bookshopId, price, actualDate]).catch();
+        
+    }
+        
 }
 
 function parseGoogleJSON(ISBN,data){
@@ -241,5 +271,6 @@ module.exports = {
     getBooks,
     getBookByISBN, 
     getBookByAuthorName,
-    getBookByCategory
+    getBookByCategory,
+    getBookPrice
 }
