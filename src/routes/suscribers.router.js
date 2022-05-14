@@ -6,5 +6,6 @@ const  suscribersController = require('../controllers/suscribers.controller')
 
 router.get('/suscribers/:Id', suscribersController.getSuscriberById);
 router.post('/suscribers/', suscribersController.applySuscription);
+router.delete('/suscribers/', suscribersController.removeSuscription);
 
 module.exports = router;
