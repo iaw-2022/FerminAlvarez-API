@@ -1,6 +1,4 @@
 function compactAuthors(responseBooks, responseAuthors){
-    console.log(responseBooks.rows);
-    console.log(responseAuthors.rows);
     let books = responseBooks.rows;
     let authors = responseAuthors.rows;
     for(e in books){

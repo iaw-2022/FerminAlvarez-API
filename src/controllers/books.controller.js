@@ -94,7 +94,7 @@ const getBookByISBN = async(req, res) => {
                     )
                     .catch(
                         err =>{
-                            console.log("ERROR: Something went wrong saving the book");
+                            res.status(404).json({error: 'Not Found'});
                         }
             )}).catch(
                 () => {
