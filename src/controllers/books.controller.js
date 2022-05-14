@@ -1,15 +1,16 @@
 const database = require('../database');
 const axios = require('axios');
 const { json } = require('express/lib/response');
+const utils = require('../utils');
 
 const getBooks = async(req, res ) => {
     const responseBooks = 
     await database.query('SELECT books."ISBN", books.name, publisher, total_pages, published_at, image_link, categories.name as category FROM (books JOIN categories ON books.category = categories.id JOIN written_by ON written_by."ISBN" = books."ISBN" JOIN authors On written_by."Author" = authors.id) GROUP BY books."ISBN", categories.name');
 
     const responseAuthors = 
-    await database.query('SELECT written_by."ISBN", authors.name FROM  (authors JOIN written_by ON written_by."Author" = authors."id" JOIN books On written_by."ISBN" = books."ISBN")');
+    await database.query('SELECT written_by."ISBN", authors.name, authors.id  FROM  (authors JOIN written_by ON written_by."Author" = authors."id" JOIN books On written_by."ISBN" = books."ISBN")');
 
-    compactAuthors(responseBooks, responseAuthors)
+    utils.compactAuthors(responseBooks, responseAuthors)
 
     if(responseBooks.rows.length>0)
         res.status(200).json(responseBooks.rows);
@@ -22,9 +23,9 @@ async function getBookWithISBN(ISBN){
         await database.query('SELECT "ISBN", books.name, publisher, total_pages, published_at, image_link, categories.name as category FROM (books JOIN categories ON books.category = categories.id) WHERE books."ISBN" = $1', [ISBN]);
     
         const responseAuthors = 
-        await database.query('SELECT written_by."ISBN", authors.name FROM  (authors JOIN written_by ON written_by."Author" = authors."id" JOIN books On written_by."ISBN" = books."ISBN") WHERE written_by."ISBN" = $1', [ISBN]);
+        await database.query('SELECT written_by."ISBN", authors.name, authors.id  FROM  (authors JOIN written_by ON written_by."Author" = authors."id" JOIN books On written_by."ISBN" = books."ISBN") WHERE written_by."ISBN" = $1', [ISBN]);
     
-        compactAuthors(responseBooks, responseAuthors)
+        utils.compactAuthors(responseBooks, responseAuthors)
 
         return responseBooks;
 }
@@ -36,9 +37,9 @@ const getBookByAuthorName = async(req, res) => {
         await database.query('SELECT books."ISBN", books.name, publisher, total_pages, published_at, image_link, categories.name as category FROM (books JOIN categories ON books.category = categories.id JOIN written_by ON written_by."ISBN"=books."ISBN" JOIN authors ON authors.id = written_by."Author") WHERE upper(authors.name) LIKE upper($1)', [`%${req.params.AuthorName}%`]);
 
         const responseAuthors = 
-        await database.query('SELECT written_by."ISBN", authors.name FROM  (authors JOIN written_by ON written_by."Author" = authors."id" JOIN books On written_by."ISBN" = books."ISBN") WHERE upper(authors.name) LIKE upper($1)', [`%${req.params.AuthorName}%`]);
+        await database.query('SELECT written_by."ISBN", authors.name, authors.id  FROM  (authors JOIN written_by ON written_by."Author" = authors."id" JOIN books On written_by."ISBN" = books."ISBN") WHERE upper(authors.name) LIKE upper($1)', [`%${req.params.AuthorName}%`]);
 
-        compactAuthors(responseBooks, responseAuthors)
+        utils.compactAuthors(responseBooks, responseAuthors)
 
         if(responseBooks.rows.length > 0){
             res.status(200).json(responseBooks.rows);
@@ -59,9 +60,9 @@ const getBookByCategory= async(req, res) => {
         console.log(req.params.Category);
 
         const responseAuthors = 
-        await database.query('SELECT written_by."ISBN", authors.name FROM  (authors JOIN written_by ON written_by."Author" = authors."id" JOIN books On written_by."ISBN" = books."ISBN" JOIN categories ON categories.id = books.category) WHERE to_ascii(upper(categories.name)) LIKE to_ascii(upper($1)) ', [`%${req.params.Category}%`]);
+        await database.query('SELECT written_by."ISBN", authors.name, authors.id  FROM  (authors JOIN written_by ON written_by."Author" = authors."id" JOIN books On written_by."ISBN" = books."ISBN" JOIN categories ON categories.id = books.category) WHERE to_ascii(upper(categories.name)) LIKE to_ascii(upper($1)) ', [`%${req.params.Category}%`]);
 
-        compactAuthors(responseBooks, responseAuthors)
+        utils.compactAuthors(responseBooks, responseAuthors)
 
         if(responseBooks.rows.length > 0){
             res.status(200).json(responseBooks.rows);
@@ -234,20 +235,6 @@ function parseGoogleJSON(ISBN,data){
 
     return json;
 
-}
-
-function compactAuthors(responseBooks, responseAuthors){
-    let books = responseBooks.rows;
-    let authors = responseAuthors.rows;
-    for(e in books){
-        let aux = [];
-        books[e]["authors"] = aux;
-        for(i in authors){
-            if(authors[i].ISBN == books[e].ISBN){
-                aux.push(authors[i].name);
-            }
-        }
-    }
 }
 
 module.exports = {
