@@ -183,31 +183,36 @@ async function assignAuthors(authorsNames,ISBN){
 
 const getBookPrice= async(req, res) => {
     if(!isNaN(req.params.ISBN)){
-        callScrapper(req.params.ISBN).then(() => {
-            let a = getPrices(req.params.ISBN).then((response) => {console.log(response)});
-            res.status(200).json(a);
+        await callScrapper(req.params.ISBN).then(() => {
+            getPrices(req.params.ISBN)
+            .then((response) => { 
+                res.status(200).json(response);
+            }).catch(() => {
+                res.status(400).json({error: 'Not Found'})
+            });
         })
     }
 }
 
 async function callScrapper(ISBN){
+    let promises = [];
     for(i in scrapping_settings.bookshopmapping){
-        (scrapping_repository.callScrappingAPI(ISBN, i).then( res => {
-            for(i of scrapping_settings.bookshopmapping[res.indexBookshop].id){
-                insertHas(ISBN, i, res.data.Precio).then(() => {console.log(i)})
-            }
-        }))
+        promises.push(scrapping_repository.callScrappingAPI(ISBN, i).then( res => {
+            if (typeof res !== 'undefined')
+                for(i of scrapping_settings.bookshopmapping[res.indexBookshop].id){
+                    promises.push(insertHas(ISBN, i, res.data.Precio))
+                }
+        }).catch())
     }
+    await Promise.all(promises);
 }
 
 async function getPrices(ISBN){
-    console.log("A");
-    await database.query('SELECT "ISBN", "Bookshop", name, price, link FROM has JOIN bookshops ON bookshops.id = "Bookshop" WHERE "ISBN" = ($1)', [ISBN]).then( (response) => {
+    return await database.query('SELECT "ISBN", "Bookshop", name, price, link FROM has JOIN bookshops ON bookshops.id = "Bookshop" WHERE "ISBN" = ($1)', [ISBN]).then( (response) => {
         if(response.rows.length > 0){
-            console.log(response.rows)
             return (response.rows)
         }else{
-            return "error: 'Not Found"
+            throw ('error')
         }
     });
 }
@@ -217,7 +222,7 @@ async function insertHas(ISBN, bookshopId, price){
     const responseHas = await database.query('SELECT "ISBN", "Bookshop",updated_at FROM has WHERE "ISBN" = ($1) and "Bookshop" = ($2) LIMIT 1',[ISBN, bookshopId]);
 
     if(responseHas.rows.length == 0){
-        await database.query('INSERT INTO has ("ISBN","Bookshop",price, created_at, updated_at) VALUES ($1, $2, $3, $4,$5)', [ISBN, bookshopId, price, actualDate, actualDate]).then( () => {console.log("inserted")}).catch(() => {});
+        await database.query('INSERT INTO has ("ISBN","Bookshop",price, created_at, updated_at) VALUES ($1, $2, $3, $4,$5)', [ISBN, bookshopId, price, actualDate, actualDate]).catch(() => {});
     } else{    
         let hasDateTime = createDate(responseHas.rows[0].updated_at).getTime()
 
@@ -225,7 +230,7 @@ async function insertHas(ISBN, bookshopId, price){
 
         var hours = Math.abs(hasDateTime - actualTime) / 36e5;
         if(hours > 8){
-            await database.query('UPDATE has SET price = ($3), updated_at = ($4) WHERE "ISBN" = ($1) and "Bookshop" = ($2)', [ISBN, bookshopId, price, actualDate]).then( () => {console.log("updated")}).catch();
+            await database.query('UPDATE has SET price = ($3), updated_at = ($4) WHERE "ISBN" = ($1) and "Bookshop" = ($2)', [ISBN, bookshopId, price, actualDate]).catch();
         }
         
     }        
