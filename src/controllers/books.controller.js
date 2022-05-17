@@ -3,6 +3,8 @@ const axios = require('axios');
 const { json } = require('express/lib/response');
 const utils = require('../utils');
 const scrapping_settings = require('../scrapping-settings');
+const google_repository = require('../respositories/google_repository');
+const scrapping_repository = require('../respositories/scrapping_repository');
 
 const getBooks = async(req, res ) => {
     const responseBooks = 
@@ -82,7 +84,7 @@ const getBookByISBN = async(req, res) => {
                 res.status(200).json(responseBook.rows);
             })
         }else{
-            callGoogleAPI(req.params.ISBN).then(
+            google_repository.callGoogleAPI(req.params.ISBN).then(
                 data => {
                     let book = parseGoogleJSON(req.params.ISBN,data);
                     createBook(book)
@@ -177,65 +179,56 @@ async function assignAuthors(authorsNames,ISBN){
     } 
 }
 
-function callGoogleAPI(ISBN){
-    let uri = 'https://www.googleapis.com/books/v1/volumes?q=isbn:'+ISBN;
-    let promise = axios.get(uri);
 
-    let dataPromise = promise
-    .then((response) => {
-        if(response.data.totalItems != 0)
-            return response.data.items[0];
-        else
-            throw ("Book not founded");
-    });
-    return dataPromise;
-}
 
 const getBookPrice= async(req, res) => {
     if(!isNaN(req.params.ISBN)){
-        for( i in scrapping_settings.bookshopmapping.length){
-            await callScrappingAPI(req.params.ISBN, i)
-        }
-        const responseHas = await database.query('SELECT "ISBN", "Bookshop", name, price FROM has JOIN bookshops ON bookshops.id = "Bookshop" WHERE "ISBN" = ($1)', [req.params.ISBN]);
-
-        if(responseHas.rows.length > 0){
-            res.status(200).json(responseHas.rows);
-        }else{
-            res.status(404).json({error: 'Not Found'});
-        }
+        callScrapper(req.params.ISBN).then(() => {
+            let a = getPrices(req.params.ISBN).then((response) => {console.log(response)});
+            res.status(200).json(a);
+        })
     }
 }
 
-async function callScrappingAPI(ISBN, indexBookshop){
-    bookshop = scrapping_settings.bookshopmapping[indexBookshop]
-    let uri = 'https://scrappinglibreriaapi.herokuapp.com/'+bookshop.name+'/'+ISBN;
-    
-    axios.get(uri).then((response) => {
-        for(i in bookshop.id){
-            insertHas(ISBN, bookshop.id[i], response.data.Precio)
+async function callScrapper(ISBN){
+    for(i in scrapping_settings.bookshopmapping){
+        (scrapping_repository.callScrappingAPI(ISBN, i).then( res => {
+            for(i of scrapping_settings.bookshopmapping[res.indexBookshop].id){
+                insertHas(ISBN, i, res.data.Precio).then(() => {console.log(i)})
+            }
+        }))
+    }
+}
+
+async function getPrices(ISBN){
+    console.log("A");
+    await database.query('SELECT "ISBN", "Bookshop", name, price, link FROM has JOIN bookshops ON bookshops.id = "Bookshop" WHERE "ISBN" = ($1)', [ISBN]).then( (response) => {
+        if(response.rows.length > 0){
+            console.log(response.rows)
+            return (response.rows)
+        }else{
+            return "error: 'Not Found"
         }
-    }).catch(() => {});
+    });
 }
 
 async function insertHas(ISBN, bookshopId, price){
-    const responseHas = await database.query('SELECT "ISBN", "Bookshop",updated_at FROM has WHERE "ISBN" = ($1) and "Bookshop" = ($2) LIMIT 1',[ISBN, bookshopId]);
-    
     let actualDate = new Date(Date.now()).toLocaleString('es-AR');
-    
+    const responseHas = await database.query('SELECT "ISBN", "Bookshop",updated_at FROM has WHERE "ISBN" = ($1) and "Bookshop" = ($2) LIMIT 1',[ISBN, bookshopId]);
+
     if(responseHas.rows.length == 0){
-        await database.query('INSERT INTO has ("ISBN","Bookshop",price, created_at, updated_at) VALUES ($1, $2, $3, $4,$5)', [ISBN, bookshopId, price, actualDate, actualDate]).catch();
-    } else{
+        await database.query('INSERT INTO has ("ISBN","Bookshop",price, created_at, updated_at) VALUES ($1, $2, $3, $4,$5)', [ISBN, bookshopId, price, actualDate, actualDate]).then( () => {console.log("inserted")}).catch(() => {});
+    } else{    
         let hasDateTime = createDate(responseHas.rows[0].updated_at).getTime()
 
         let actualTime = new Date().getTime()
 
         var hours = Math.abs(hasDateTime - actualTime) / 36e5;
-
-        if(hours > 8)
-            await database.query('UPDATE has SET price = ($3), updated_at = ($4) WHERE "ISBN" = ($1) and "Bookshop" = ($2)', [ISBN, bookshopId, price, actualDate]).catch();
+        if(hours > 8){
+            await database.query('UPDATE has SET price = ($3), updated_at = ($4) WHERE "ISBN" = ($1) and "Bookshop" = ($2)', [ISBN, bookshopId, price, actualDate]).then( () => {console.log("updated")}).catch();
+        }
         
-    }
-        
+    }        
 }
 
 function parseGoogleJSON(ISBN,data){
