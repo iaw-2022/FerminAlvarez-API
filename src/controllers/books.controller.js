@@ -200,7 +200,7 @@ async function callScrapper(ISBN){
         promises.push(scrapping_repository.callScrappingAPI(ISBN, i).then( res => {
             if (typeof res !== 'undefined')
                 for(i of scrapping_settings.bookshopmapping[res.indexBookshop].id){
-                    promises.push(insertHas(ISBN, i, res.data.Precio))
+                    promises.push(insertHas(ISBN, i, res.data.Precio, res.data.Link))
                 }
         }).catch())
     }
@@ -217,12 +217,12 @@ async function getPrices(ISBN){
     });
 }
 
-async function insertHas(ISBN, bookshopId, price){
+async function insertHas(ISBN, bookshopId, price, link){
     let actualDate = new Date(Date.now()).toLocaleString('es-AR');
     const responseHas = await database.query('SELECT "ISBN", "Bookshop",updated_at FROM has WHERE "ISBN" = ($1) and "Bookshop" = ($2) LIMIT 1',[ISBN, bookshopId]);
 
     if(responseHas.rows.length == 0){
-        await database.query('INSERT INTO has ("ISBN","Bookshop",price, created_at, updated_at) VALUES ($1, $2, $3, $4,$5)', [ISBN, bookshopId, price, actualDate, actualDate]).catch(() => {});
+        await database.query('INSERT INTO has ("ISBN","Bookshop",price, link, created_at, updated_at) VALUES ($1, $2, $3, $4,$5, $6)', [ISBN, bookshopId, price, link, actualDate, actualDate]).catch();
     } else{    
         let hasDateTime = createDate(responseHas.rows[0].updated_at).getTime()
 
