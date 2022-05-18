@@ -67,6 +67,6 @@ router.get('/authors/:Id', authorsController.getAuthorsById);
  *       '404':
  *         description: Not found
  */
-router.get('/authors/books/:Id', authorsController.getBookByAuthorId);
+router.get('/authors/:Id/books', authorsController.getBookByAuthorId);
 
 module.exports = router;
