@@ -9,7 +9,7 @@ const swaggerOptions = {
             // servers: [config.SERVER]
         }
     },
-    apis: [`${path.join(__dirname, "./routes/*.routes.js")}`],
+    apis: [`${path.join(__dirname, "./routes/*.router.js")}`],
 }
 
 module.exports = swaggerOptions
