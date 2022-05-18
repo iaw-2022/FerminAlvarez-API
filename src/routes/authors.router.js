@@ -4,8 +4,69 @@ const router = Router();
 
 const  authorsController = require('../controllers/authors.controller')
 
+/**
+ * @swagger
+ * /authors:
+ *   get:
+ *     description: Use to request all authors of books available.
+ *     tags: 
+ *       - Authors
+ *     responses:
+ *       '200':
+ *         description: Sucessful response
+ *       '400':
+ *         description: Invalid parameter
+ *       '404':
+ *         description: Not found
+ */
 router.get('/authors', authorsController.getAuthors);
-router.get('/author/:Id', authorsController.getAuthorsById);
-router.get('/author/books/:Id', authorsController.getBookByAuthorId);
+
+/**
+ * @swagger
+ * /authors/{id}:
+ *   get:
+ *     description: Use to request a author.
+ *     tags: 
+ *       - Authors
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID of the author
+ *     responses:
+ *       '200':
+ *         description: Sucessful response
+ *       '400':
+ *         description: Invalid parameter
+ *       '404':
+ *         description: Not found
+ */
+router.get('/authors/:Id', authorsController.getAuthorsById);
+
+/**
+ * @swagger
+ * /authors/books/{id}:
+ *   get:
+ *     description: Use to request a books written by an author.
+ *     tags: 
+ *       - Authors
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID of the author
+ *     responses:
+ *       '200':
+ *         description: Sucessful response
+ *       '400':
+ *         description: Invalid parameter
+ *       '404':
+ *         description: Not found
+ */
+router.get('/authors/books/:Id', authorsController.getBookByAuthorId);
 
 module.exports = router;
