@@ -1,6 +1,11 @@
 const express = require('express');
 
 const app = express();
+const config = require('./config');
+const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
+const swaggerOptions = require('./swagger_doc');
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
 // Middlewares
 app.use(express.json());
@@ -11,6 +16,7 @@ app.use(require('./routes/books.router'));
 app.use(require('./routes/bookshops.router'));
 app.use(require('./routes/categories.router'));
 app.use(require('./routes/suscribers.router'));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-app.listen(3000);
-console.log('Server on port', 3000);
+app.listen(config.PORT);
+console.log('Server on port', config.PORT);
