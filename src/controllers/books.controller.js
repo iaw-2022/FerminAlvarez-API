@@ -191,6 +191,8 @@ const getBookPrice= async(req, res) => {
                 res.status(400).json({error: 'Not Found'})
             });
         })
+    }else{
+        res.status(400).json({error: 'Invalid parameter'});
     }
 }
 
@@ -202,7 +204,7 @@ async function callScrapper(ISBN){
                 for(i of scrapping_settings.bookshopmapping[res.indexBookshop].id){
                     promises.push(insertHas(ISBN, i, res.data.Precio, res.data.Link))
                 }
-        }).catch())
+        }))
     }
     await Promise.all(promises);
 }

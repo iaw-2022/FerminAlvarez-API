@@ -24,7 +24,7 @@ const getBookshopsById = async(req, res) => {
             res.status(404).json({error: 'Not Found'});
         }
     }else{
-        res.status(400)
+        res.status(400).json({error: 'Invalid parameter'});
     }
 }
 
@@ -41,7 +41,7 @@ const getBookshopsByName = async(req, res) => {
             res.status(404).json({error: 'Not Found'});
         }
     }else{
-        res.status(400)
+        res.status(400).json({error: 'Invalid parameter'});
     }
 }
 

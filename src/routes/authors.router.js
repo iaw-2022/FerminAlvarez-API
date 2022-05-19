@@ -47,7 +47,7 @@ router.get('/authors/:Id', authorsController.getAuthorsById);
 
 /**
  * @swagger
- * /authors/books/{id}:
+ * /authors/{id}/books:
  *   get:
  *     description: Use to request a books written by an author.
  *     tags: 

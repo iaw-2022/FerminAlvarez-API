@@ -17,7 +17,7 @@ const applySuscription = async(req, res) => {
     const {id, ISBN} = req.body
     await database.query('INSERT INTO subscribed VALUES ($1,$2,$3,$4) returning id_user', [id, ISBN, actualDate, actualDate], function(err, result, fields) {
         if (err) {
-            res.status(400).json({error: 'ERROR: Something went wrong'});
+            res.status(400).json({error: 'Something went wrong'});
           }else{
             res.json({
                 message: "Subscription Added Succesfully",
@@ -32,7 +32,7 @@ const removeSuscription = async(req, res) => {
     const {id, ISBN} = req.body
     await database.query('DELETE FROM  subscribed WHERE id_user = ($1) and subscribed."ISBN" = ($2)', [id, ISBN], function(err, result, fields) {
         if (err) {
-            res.status(400).json({error: 'ERROR: Something went wrong' +err});
+            res.status(400).json({error: 'Something went wrong' +err});
           }else{
             res.json({
                 message: "Subscription Removed Succesfully"
