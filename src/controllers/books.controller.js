@@ -237,7 +237,7 @@ async function insertHas(ISBN, bookshopId, price, link){
 
         var hours = Math.abs(hasDateTime - actualTime) / 36e5;
         if(hours > 8){
-            await database.query('UPDATE has SET price = ($3), updated_at = ($4) WHERE "ISBN" = ($1) and "Bookshop" = ($2)', [ISBN, bookshopId, price, actualDate]).catch();
+            await database.query('UPDATE has SET price = ($3), link = ($4), updated_at = ($5) WHERE "ISBN" = ($1) and "Bookshop" = ($2)', [ISBN, bookshopId, price, link, actualDate]).catch();
         }
         
     }        
