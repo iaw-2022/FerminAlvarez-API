@@ -183,14 +183,19 @@ async function assignAuthors(authorsNames,ISBN){
 
 const getBookPrice= async(req, res) => {
     if(!isNaN(req.params.ISBN)){
-        await callScrapper(req.params.ISBN).then(() => {
-            getPrices(req.params.ISBN)
-            .then((response) => { 
-                res.status(200).json(response);
-            }).catch(() => {
-                res.status(400).json({error: 'Not Found'})
-            });
-        })
+        const responseBook =  await database.query('SELECT books."ISBN" FROM books WHERE books."ISBN" = $1 LIMIT 1', [req.params.ISBN]);
+        if(responseBook.rows.length > 0){
+            await callScrapper(req.params.ISBN).then(() => {
+                getPrices(req.params.ISBN)
+                .then((response) => { 
+                    res.status(200).json(response);
+                }).catch(() => {
+                    res.status(400).json({error: 'Not Found'})
+                });
+            })
+        }else{
+            res.status(400).json({error: 'Not Found'})
+        }
     }else{
         res.status(400).json({error: 'Invalid parameter'});
     }
