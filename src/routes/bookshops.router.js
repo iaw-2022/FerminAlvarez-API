@@ -98,6 +98,5 @@ router.get('/bookshops/:Id/books', bookshopsController.getBooksByBookshopId);
  *         description: Not found
  */
 router.get('/bookshops/:Id/book/:ISBN', bookshopsController.getBookFromBookshop);
-router.get('/bookshops/:BookshopName', bookshopsController.getBookshopsByName);
 
 module.exports = router;

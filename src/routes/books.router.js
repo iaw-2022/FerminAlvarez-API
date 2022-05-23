@@ -44,8 +44,6 @@ router.get('/books', booksController.getBooks);
  *         description: Not found
  */
 router.get('/books/:ISBN', booksController.getBookByISBN);
-router.get('/books/author/:AuthorName', booksController.getBookByAuthorName);
-router.get('/books/category/:Category', booksController.getBookByCategory);
 /**
  * @swagger
  * /books/{ISBN}/prices:

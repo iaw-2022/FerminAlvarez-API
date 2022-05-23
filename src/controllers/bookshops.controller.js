@@ -28,23 +28,6 @@ const getBookshopsById = async(req, res) => {
     }
 }
 
-const getBookshopsByName = async(req, res) => {
-    if(typeof req.params.BookshopName === 'string'){
-        req.params.BookshopName = req.params.BookshopName.replace(/[^0-9a-zA-Z.]+/g, " ");
-
-        const responseBookshops = 
-        await database.query('SELECT id, name, city, street, number FROM bookshops WHERE to_ascii(upper(bookshops.name)) LIKE to_ascii(upper($1))', [`%${req.params.BookshopName}%`]);
-
-        if(responseBookshops.rows.length > 0){
-            res.status(200).json(responseBookshops.rows[0]);
-        }else{
-            res.status(404).json({error: 'Not Found'});
-        }
-    }else{
-        res.status(400).json({error: 'Invalid parameter'});
-    }
-}
-
 const getBooksByBookshopId = async(req, res) => {
     if(!isNaN(req.params.Id)){
         const responseBooks = 
@@ -88,7 +71,6 @@ const getBookFromBookshop = async(req, res) => {
 module.exports = {
     getBookshops,
     getBookshopsById,
-    getBookshopsByName,
     getBooksByBookshopId,
     getBookFromBookshop
 }
