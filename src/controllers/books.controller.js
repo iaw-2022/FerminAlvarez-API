@@ -1,14 +1,16 @@
 const database = require('../database');
 const axios = require('axios');
 const { json } = require('express/lib/response');
-const utils = require('../utils');
+const utils = require('../utils/utils');
 const scrapping_settings = require('../scrapping-settings');
 const google_repository = require('../respositories/google_repository');
 const scrapping_repository = require('../respositories/scrapping_repository');
+const getSQLQueryWithCombinedFilters = require('../utils/booksFilters');
 
 const getBooks = async(req, res ) => {
-    const responseBooks = 
-    await database.query('SELECT books."ISBN", books.name, publisher, total_pages, published_at, image_link, categories.name as category, MIN(price) as min_price FROM (books JOIN categories ON books.category = categories.id JOIN written_by ON written_by."ISBN" = books."ISBN" JOIN authors On written_by."Author" = authors.id JOIN has ON books."ISBN" = has."ISBN") GROUP BY books."ISBN", categories.name');
+    console.log(getSQLQueryWithCombinedFilters(req))
+
+    const responseBooks = await database.query(getSQLQueryWithCombinedFilters(req));
 
     const responseAuthors = 
     await database.query('SELECT written_by."ISBN", authors.name, authors.id  FROM  (authors JOIN written_by ON written_by."Author" = authors."id" JOIN books On written_by."ISBN" = books."ISBN")');
