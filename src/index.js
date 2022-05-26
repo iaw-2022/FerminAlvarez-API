@@ -6,8 +6,8 @@ const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const swaggerOptions = require('./swagger_doc');
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
-const { auth, requiresAuth } = require('express-openid-connect');
-
+//const { auth, requiresAuth } = require('express-openid-connect');
+/*
 app.use(
   auth({
     authRequired: false,
@@ -20,7 +20,7 @@ app.use(
   })
 );
 
-
+*/
 // Middlewares
 app.use(express.json());
 
@@ -36,10 +36,10 @@ app.listen(config.PORT);
 console.log('Server on port', config.PORT);
 
 // req.isAuthenticated is provided from the auth router
-app.get('/', (req, res) => {
+/*app.get('/', (req, res) => {
   res.send(req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out')
 });
 
 app.get('/profile', requiresAuth() ,(req, res) => {
     res.send(JSON.stringify(req.oidc.user))
-});
+});*/

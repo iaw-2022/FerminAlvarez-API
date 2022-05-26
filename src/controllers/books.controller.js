@@ -5,15 +5,12 @@ const utils = require('../utils/utils');
 const scrapping_settings = require('../scrapping-settings');
 const google_repository = require('../respositories/google_repository');
 const scrapping_repository = require('../respositories/scrapping_repository');
-const getSQLQueryWithCombinedFilters = require('../utils/booksFilters');
+const {getSQLQuerWithFiltersBooks, getSQLQuerWithFiltersAuthors} = require('../utils/booksFilters');
 
 const getBooks = async(req, res ) => {
-    console.log(getSQLQueryWithCombinedFilters(req))
+    const responseBooks = await database.query(getSQLQuerWithFiltersBooks(req));
 
-    const responseBooks = await database.query(getSQLQueryWithCombinedFilters(req));
-
-    const responseAuthors = 
-    await database.query('SELECT written_by."ISBN", authors.name, authors.id  FROM  (authors JOIN written_by ON written_by."Author" = authors."id" JOIN books On written_by."ISBN" = books."ISBN")');
+    const responseAuthors = await database.query(getSQLQuerWithFiltersAuthors(req));
 
     utils.compactAuthors(responseBooks, responseAuthors)
 
