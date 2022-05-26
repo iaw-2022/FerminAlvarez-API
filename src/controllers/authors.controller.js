@@ -1,5 +1,5 @@
 const database = require('../database');
-const utils = require('../utils');
+const utils = require('../utils/utils');
 
 
 const getAuthors = async(req, res) => {
