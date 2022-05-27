@@ -22,7 +22,7 @@ const getBooks = async(req, res ) => {
 
 async function getBookWithISBN(ISBN){
     let responseBooks = 
-        await database.query('SELECT books."ISBN", books.name, publisher, total_pages, published_at, image_link, categories.name as category, MIN(price) as min_price FROM (books JOIN categories ON books.category = categories.id JOIN has ON books."ISBN" = has."ISBN") WHERE books."ISBN" = $1 GROUP BY books."ISBN", books.name, publisher, total_pages, published_at, image_link, categories.name', [ISBN]);
+        await database.query('SELECT books."ISBN", books.name, publisher, total_pages, published_at, image_link, categories.name as category, MIN(price) as min_price FROM (books JOIN categories ON books.category = categories.id LEFT JOIN has ON books."ISBN" = has."ISBN") WHERE books."ISBN" = $1 GROUP BY books."ISBN", books.name, publisher, total_pages, published_at, image_link, categories.name', [ISBN]);
     
         const responseAuthors = 
         await database.query('SELECT written_by."ISBN", authors.name, authors.id  FROM  (authors JOIN written_by ON written_by."Author" = authors."id" JOIN books On written_by."ISBN" = books."ISBN") WHERE written_by."ISBN" = $1', [ISBN]);

@@ -3,7 +3,7 @@ const named = require('yesql').pg
 function getSQLQuerWithFiltersBooks(req) {
     const {bookshops, min_price, max_price} = req.body;
 
-    let queryString = 'SELECT books."ISBN", books.name, publisher, total_pages, published_at, image_link, categories.name as category, MIN(price) as min_price FROM (books JOIN categories ON books.category = categories.id JOIN written_by ON written_by."ISBN" = books."ISBN" JOIN authors On written_by."Author" = authors.id JOIN has ON books."ISBN" = has."ISBN") ';
+    let queryString = 'SELECT books."ISBN", books.name, publisher, total_pages, published_at, image_link, categories.name as category, MIN(price) as min_price FROM (books JOIN categories ON books.category = categories.id JOIN written_by ON written_by."ISBN" = books."ISBN" JOIN authors On written_by."Author" = authors.id LEFT JOIN has ON books."ISBN" = has."ISBN") ';
     
     let parameters = {}
     let more_parameters = false;
