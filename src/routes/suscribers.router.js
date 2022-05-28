@@ -1,11 +1,11 @@
 const { Router } = require('express');
-const res = require('express/lib/response');
+const checkAuth = require('../checkAuth');
 const router = Router();
 
 const  suscribersController = require('../controllers/suscribers.controller')
 
-router.get('/suscribers/:Id', suscribersController.getSuscriberById);
-router.post('/suscribers/', suscribersController.applySuscription);
-router.delete('/suscribers/', suscribersController.removeSuscription);
+router.get('/suscribers/:Id', checkAuth, suscribersController.getSuscriberById);
+router.post('/suscribers/', checkAuth, suscribersController.applySuscription);
+router.delete('/suscribers/', checkAuth, suscribersController.removeSuscription);
 
 module.exports = router;

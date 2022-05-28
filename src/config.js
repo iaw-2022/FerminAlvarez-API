@@ -7,4 +7,8 @@ module.exports = {
     DB_DATABASE: process.env.DB_DATABASE,
     DB_PASSWORD: process.env.DB_PASSWORD,
     DB_PORT: process.env.DB_PORT,
+    AUTH0_JWKSURI: process.env.AUTH0_JWKSURI,
+    AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE,
+    AUTH0_ISSUER: process.env.AUTH0_ISSUER,
+    AUTH0_ALGORITHM: process.env.AUTH0_ALGORITHM
 }
