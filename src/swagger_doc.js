@@ -5,8 +5,7 @@ const swaggerOptions = {
     swaggerDefinition: {
         info: {
             title: 'Precios Libros API',
-            description: 'API Docs',
-            // servers: [config.SERVER]
+            description: 'API to get book prices in bookshops',
         }
     },
     apis: [`${path.join(__dirname, "./routes/*.router.js")}`],

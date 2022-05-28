@@ -8,16 +8,20 @@ const scrapping_repository = require('../respositories/scrapping_repository');
 const {getSQLQuerWithFiltersBooks, getSQLQuerWithFiltersAuthors} = require('../utils/booksFilters');
 
 const getBooks = async(req, res ) => {
-    const responseBooks = await database.query(getSQLQuerWithFiltersBooks(req));
+    try {
+        const responseBooks = await database.query(getSQLQuerWithFiltersBooks(req))
 
-    const responseAuthors = await database.query(getSQLQuerWithFiltersAuthors(req));
+        const responseAuthors = await database.query(getSQLQuerWithFiltersAuthors(req))
 
-    utils.compactAuthors(responseBooks, responseAuthors)
+        utils.compactAuthors(responseBooks, responseAuthors)
 
-    if(responseBooks.rows.length>0)
-        res.status(200).json(responseBooks.rows);
-    else
-        res.status(404).json({error: 'Not Found'});
+        if(responseBooks.rows.length>0)
+            res.status(200).json(responseBooks.rows);
+        else
+            res.status(404).json({error: 'Not Found'});
+    } catch (error) {
+        res.status(400).json({error: 'Invalid Body'})
+    }    
 }
 
 async function getBookWithISBN(ISBN){

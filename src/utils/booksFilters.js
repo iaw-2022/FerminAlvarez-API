@@ -7,7 +7,7 @@ function getSQLQuerWithFiltersBooks(req) {
     
     let parameters = {}
     let more_parameters = false;
-    if(bookshops!=="*"){
+    if(bookshops!==undefined){
         if( bookshops.length > 0){
             queryString = queryString.concat('WHERE (has."Bookshop" = :bookshop_0 ');
             parameters["bookshop_".concat(0)] = bookshops[0];
@@ -20,8 +20,7 @@ function getSQLQuerWithFiltersBooks(req) {
         }
        
     }
-
-    if(min_price!=="*"){
+    if(min_price!==undefined){
         let min_priceString;
         if(more_parameters){
             min_priceString = 'AND price >= :min_price ';
@@ -33,7 +32,7 @@ function getSQLQuerWithFiltersBooks(req) {
         queryString = queryString.concat(min_priceString);
     }
 
-    if(max_price!=="*"){
+    if(max_price!==undefined){
         let max_priceString;
         if(more_parameters){
             max_priceString = 'AND price <= :max_price ';
@@ -56,14 +55,14 @@ function getSQLQuerWithFiltersAuthors(req) {
     let queryString = 'SELECT written_by."ISBN", authors.name, authors.id  FROM  (authors JOIN written_by ON written_by."Author" = authors."id" JOIN books On written_by."ISBN" = books."ISBN")';
     
     let parameters = {}
-    if(authors!=="*"){
+    if(authors!==undefined){
         if( authors.length > 0){
             queryString = queryString.concat('WHERE (written_by."Author" = :author_0 ');
             parameters["author_".concat(0)] = authors[0];
             more_parameters = true;
             for(let i = 1; i < authors.length; i++){
-                queryString = queryString.concat('OR has."Bookshop" = :author_', i, " ");
-                parameters["authors_".concat(i)] = authors[i];
+                queryString = queryString.concat('OR written_by."Author" = :author_', i, " ");
+                parameters["author_".concat(i)] = authors[i];
             }
             queryString = queryString.concat(') ');
         }

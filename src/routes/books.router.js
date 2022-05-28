@@ -7,19 +7,46 @@ const  booksController = require('../controllers/books.controller')
 /**
  * @swagger
  * /books:
- *   get:
+ *   post:
  *     description: Use to request all books.
  *     tags: 
  *       - Books
+ *     parameters:
+ *       - in: body
+ *         name: user
+ *         description: Filters.
+ *         schema:
+ *           type: object
+ *           properties:
+ *             authors:
+ *               type: array
+ *               items:
+ *                  type: array
+ *                  items:
+ *                      type: integer
+ *               example: [1,2]
+ *             bookshops:
+ *               type: array
+ *               items:
+ *                  type: array
+ *                  items:
+ *                      type: integer
+ *               example: [1,2]
+ *             min_price:
+ *               type: integer
+ *               example: 100
+ *             max_price:
+ *               type: integer
+ *               example: 4800
  *     responses:
  *       '200':
  *         description: Sucessful response
  *       '400':
- *         description: Invalid parameter
+ *         description: Invalid parameter/body
  *       '404':
  *         description: Not found
  */
-router.get('/books', booksController.getBooks);
+router.post('/books', booksController.getBooks);
 
 /**
  * @swagger
