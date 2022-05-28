@@ -20,5 +20,11 @@ app.use(require('./routes/categories.router'));
 app.use(require('./routes/suscribers.router'));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
+app.use(function (err, req, res, next) {
+    if (err.name === 'UnauthorizedError') {
+        res.status(401).send({error: "Invalid token"});
+    }
+});
+
 app.listen(config.PORT);
 console.log('Server on port', config.PORT);

@@ -6,7 +6,15 @@ const swaggerOptions = {
         info: {
             title: 'Precios Libros API',
             description: 'API to get book prices in bookshops',
-        }
+        },
+        securityDefinitions: {
+            bearerAuth: {
+                type: 'apiKey',
+                name: 'Authorization',
+                scheme: 'bearer',
+                in: 'header',
+            },
+        },
     },
     apis: [`${path.join(__dirname, "./routes/*.router.js")}`],
 }

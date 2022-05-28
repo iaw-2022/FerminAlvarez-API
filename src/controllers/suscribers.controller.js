@@ -18,9 +18,9 @@ const applySuscription = async(req, res) => {
     if(id != null && ISBN != null && !isNaN(id)){
         await database.query('INSERT INTO subscribed VALUES ($1,$2,$3,$4) returning id_user', [id, ISBN, actualDate, actualDate], function(err, result, fields) {
             if (err) {
-                res.status(400).json({error: 'Something went wrong'});
+                res.status(400).json({error: 'Invalid body'});
               }else{
-                res.json({
+                res.status(200).json({
                     message: "Subscription Added Succesfully",
                     id, 
                     ISBN
@@ -38,9 +38,9 @@ const removeSuscription = async(req, res) => {
     if(id != null && ISBN != null && !isNaN(id)){
         await database.query('DELETE FROM  subscribed WHERE id_user = ($1) and subscribed."ISBN" = ($2)', [id, ISBN], function(err, result, fields) {
             if (err) {
-                res.status(400).json({error: 'Something went wrong' +err});
+                res.status(400).json({error: 'Invalid body'});
             }else{
-                res.json({
+                res.status(200).json({
                     message: "Subscription Removed Succesfully"
                 })
             }
