@@ -56,7 +56,7 @@ const getBookByISBN = async(req, res) => {
                     )
                     .catch(
                         err =>{
-                            res.status(404).json({error: 'Not Found'});
+                            res.status(400).json({error: 'Something went wrong'});
                         }
             )}).catch(
                 () => {
@@ -72,7 +72,7 @@ const getBookByISBN = async(req, res) => {
 
 async function createBook(jsonBook) {
     jsonBook.publishedDate = createDate(jsonBook.publishedDate);
-    let actualDate = new Date(Date.now()).toLocaleString('es-AR');
+    let actualDate = new Date(Date.now()).toLocaleString('en-US');
     getCategory(jsonBook.category)
     .then( (categoryID) => {
         insertBook(jsonBook,categoryID,actualDate)
@@ -81,11 +81,11 @@ async function createBook(jsonBook) {
         })
         .catch(
             err => {
-                console.log(err);
+                throw (err);
             }
     )}).catch(
         err => {
-            console.log(err + "ERROR: Something went wrong adding the category");
+            throw (err);
         }
     );
 }
@@ -96,7 +96,7 @@ const createDate = (date) => {
 }
 
 async function getCategory(categoryName){
-    const responseCategories = await database.query('SELECT id, name FROM categories WHERE to_ascii(upper(name)) LIKE to_ascii(upper($1)) LIMIT 1',[categoryName]);
+    const responseCategories = await database.query('SELECT id, name FROM categories WHERE name ILIKE ($1) LIMIT 1',[categoryName]);
     
     if(responseCategories.rows.length == 0){
         let result = await database.query('INSERT INTO categories (name) VALUES ($1) returning id', [categoryName]);
@@ -113,7 +113,7 @@ async function insertBook(jsonBook, categoryID,actualDate){
         }
     ).catch(
         (err) => {
-            throw ("error: Something went wrong saving book on database");
+            throw ("error: Something went wrong saving book on database" + err);
         }
     );
 }
@@ -121,7 +121,7 @@ async function insertBook(jsonBook, categoryID,actualDate){
 async function assignAuthors(authorsNames,ISBN){
     let authorsIDS = []
     for (author in authorsNames){
-        const responseAuthors = await database.query('SELECT id FROM authors WHERE to_ascii(upper(name)) LIKE to_ascii(upper($1)) LIMIT 1',[authorsNames[author]]);
+        const responseAuthors = await database.query('SELECT id FROM authors WHERE name ILIKE ($1) LIMIT 1',[authorsNames[author]]);
 
         if(responseAuthors.rows.length == 0){
             let result = await database.query('INSERT INTO authors (name) VALUES ($1) returning id', [authorsNames[author]]) ;
@@ -186,7 +186,7 @@ async function getPrices(ISBN){
 }
 
 async function insertHas(ISBN, bookshopId, price, link){
-    let actualDate = new Date(Date.now()).toLocaleString('es-AR');
+    let actualDate = new Date(Date.now()).toLocaleString('en-US');
     const responseHas = await database.query('SELECT "ISBN", "Bookshop",updated_at FROM has WHERE "ISBN" = ($1) and "Bookshop" = ($2) LIMIT 1',[ISBN, bookshopId]);
 
     if(responseHas.rows.length == 0){

@@ -13,7 +13,7 @@ const getSuscriberById = async(req, res) => {
 }
 
 const applySuscription = async(req, res) => {
-    let actualDate = new Date(Date.now()).toLocaleString('es-AR');
+    let actualDate = new Date(Date.now()).toLocaleString('en-US');
     const {id, ISBN} = req.body
     if(id != null && ISBN != null && !isNaN(id)){
         await database.query('INSERT INTO subscribed VALUES ($1,$2,$3,$4) returning id_user', [id, ISBN, actualDate, actualDate], function(err, result, fields) {
