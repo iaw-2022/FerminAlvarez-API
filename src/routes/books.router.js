@@ -18,6 +18,9 @@ const  booksController = require('../controllers/books.controller')
  *         schema:
  *           type: object
  *           properties:
+ *             name:
+ *               type: string
+ *               example: mundo
  *             authors:
  *               type: array
  *               items:
@@ -31,13 +34,13 @@ const  booksController = require('../controllers/books.controller')
  *                  type: array
  *                  items:
  *                      type: integer
- *               example: [1,2]
+ *               example: [1,4]
  *             min_price:
  *               type: integer
  *               example: 100
  *             max_price:
  *               type: integer
- *               example: 4800
+ *               example: 7200
  *     responses:
  *       '200':
  *         description: Sucessful response
