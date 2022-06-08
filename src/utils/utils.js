@@ -6,6 +6,10 @@ function compactAuthors(responseBooks, responseAuthors){
         let aux = [];
         books[e]["authors"] = aux;
         authorFounded = false
+        
+        if(authors.length == 0)
+            authorFounded = true
+
         for(i in authors){
             if(authors[i].ISBN == books[e].ISBN){
                 authorFounded = true
