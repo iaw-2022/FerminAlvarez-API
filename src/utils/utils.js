@@ -1,3 +1,5 @@
+const database = require('../database');
+
 function compactAuthors(responseBooks, responseAuthors){
     let books = responseBooks.rows;
     let authors = responseAuthors.rows;
@@ -25,6 +27,15 @@ function compactAuthors(responseBooks, responseAuthors){
     responseBooks.rows = result;
 }
 
+const createUser = async (userInfo) => {
+    try{
+        await database.query('INSERT INTO users (email,name,role) VALUES ($1,$2,$3) returning email', [userInfo.email, userInfo.name, 3]);
+    } catch(err){
+        console.log(err)
+    }
+}
+
 module.exports = {
-    compactAuthors
+    compactAuthors,
+    createUser
 }

@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const checkAuth = require('../checkAuth');
+const checkAuth = require('../auth').checkAuth;
 const router = Router();
 
 const  suscribersController = require('../controllers/suscribers.controller')
