@@ -3,7 +3,7 @@ const getUserInfoFromToken = require('../auth').getUserInfoFromToken;
 const createUser = require('../utils/utils').createUser;
 
 
-const getSuscriberById = async(req, res) => {
+const getSuscriber = async(req, res) => {
     const userInfo = await getUserInfoFromToken(req);
     createUser(userInfo)
 
@@ -66,7 +66,7 @@ const removeSuscription = async(req, res) => {
 }
 
 module.exports = {
-    getSuscriberById,
+    getSuscriber,
     applySuscription,
     removeSuscription
 }

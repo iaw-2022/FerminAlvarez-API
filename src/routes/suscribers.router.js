@@ -6,20 +6,13 @@ const  suscribersController = require('../controllers/suscribers.controller')
 
 /**
  * @swagger
- * /suscribers/{id}:
+ * /suscribers/:
  *   get:
  *     description: Use to request subscribed books
  *     security: 
  *          - bearerAuth: []
  *     tags: 
  *       - Suscribers
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: integer
- *         required: true
- *         description: ID of the susciber
  *     responses:
  *       '200':
  *         description: Sucessful response
@@ -28,7 +21,7 @@ const  suscribersController = require('../controllers/suscribers.controller')
  *       '404':
  *         description: Not found
  */
-router.get('/suscribers/:Id', checkAuth, suscribersController.getSuscriberById);
+router.get('/suscribers/', checkAuth, suscribersController.getSuscriber);
 
 /**
  * @swagger
@@ -46,9 +39,6 @@ router.get('/suscribers/:Id', checkAuth, suscribersController.getSuscriberById);
  *         schema:
  *           type: object
  *           properties:
- *             id:
- *               type: integer
- *               example: 1
  *             ISBN:
  *               type: integer
  *               example: 9788418037238
@@ -78,9 +68,6 @@ router.post('/suscribers/', checkAuth, suscribersController.applySuscription);
  *         schema:
  *           type: object
  *           properties:
- *             id:
- *               type: integer
- *               example: 1
  *             ISBN:
  *               type: integer
  *               example: 9788418037238
