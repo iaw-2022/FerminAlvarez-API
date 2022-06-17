@@ -1,17 +1,23 @@
 const database = require('../database');
 const getUserInfoFromToken = require('../auth').getUserInfoFromToken;
 const createUser = require('../utils/utils').createUser;
+const utils = require('../utils/utils');
 
 
 const getSuscriber = async(req, res) => {
     const userInfo = await getUserInfoFromToken(req);
     createUser(userInfo)
 
-    const responseSuscriber = 
-    await database.query('SELECT "ISBN" FROM subscribed WHERE user_email = ($1)', [userInfo.email]);
+    const responseBooks = 
+    await database.query('SELECT books."ISBN", books.name, publisher, total_pages, published_at, image_link, categories.name as category, MIN(price) as min_price FROM (books JOIN categories ON books.category = categories.id LEFT JOIN has ON books."ISBN" = has."ISBN" JOIN subscribed ON books."ISBN"=subscribed."ISBN") WHERE user_email = $1 GROUP BY books."ISBN", books.name, publisher, total_pages, published_at, image_link, categories.name', [userInfo.email]);
 
-    if(responseSuscriber.rows.length > 0){
-        res.status(200).json(responseSuscriber.rows);
+    const responseAuthors = 
+    await database.query('SELECT written_by."ISBN", authors.name, authors.id  FROM  (authors JOIN written_by ON written_by."Author" = authors."id" JOIN books On written_by."ISBN" = books."ISBN" JOIN subscribed ON books."ISBN"=subscribed."ISBN") WHERE user_email = $1',[userInfo.email]);
+
+    utils.compactAuthors(responseBooks, responseAuthors)
+
+    if(responseBooks.rows.length > 0){
+        res.status(200).json(responseBooks.rows);
     }else{
         res.status(404).json({error: 'Not Found'});
     }  
