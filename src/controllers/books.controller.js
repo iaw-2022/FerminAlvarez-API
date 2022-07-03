@@ -60,7 +60,18 @@ const getBookByISBN = async(req, res) => {
                         }
             )}).catch(
                 () => {
-                    res.status(404).json({error: 'Not Found'});
+                    let book = createEmptyBook(req.params.ISBN);
+                    createBook(book)
+                    .then(
+                        getBookWithISBN(req.params.ISBN).then((responseBook) => { 
+                            res.status(200).json(responseBook.rows);
+                        })
+                    )
+                    .catch(
+                        err =>{
+                            res.status(400).json({error: 'Something went wrong'});
+                        }
+                    )
                 }
             )
         } 
@@ -231,6 +242,17 @@ function parseGoogleJSON(ISBN,data){
 
     return json;
 
+}
+
+function createEmptyBook(ISBN){
+    let json =  JSON.parse(JSON.stringify({
+        ISBN:ISBN,
+        title: "Desconocido",
+        authors: [],
+        category : "NOT_DEFINED_CATEGORY"
+    }));
+    
+    return json;
 }
 
 module.exports = {

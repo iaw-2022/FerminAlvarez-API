@@ -70,8 +70,6 @@ router.post('/books', booksController.getBooks);
  *         description: Sucessful response
  *       '400':
  *         description: Invalid parameter
- *       '404':
- *         description: Not found
  */
 router.get('/books/:ISBN', booksController.getBookByISBN);
 /**
